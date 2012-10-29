@@ -11,7 +11,7 @@ In the context of our agency, EEException allows us to monitor issues that arise
 Follow these simple instructions to install EEException:
 
 1. Copy the __eeexception__ add-on files to your __system/expressionengine/third_party__ directory.
-2. Specify your Codebase Exceptions API key in your __config.php__ file.
+2. Add the following line to your __config.php__ file: `$config['codebase_exceptions_api_key'] = 'xxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx';`
 3. Use the EEException plugin tag or call the hook method from your add-on code.
 
 If there are any problems, EEException will log the error message in the developer log, which you can see when logged in to the EE control panel as a super admin.
