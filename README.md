@@ -5,6 +5,9 @@ EEException is a handy add-on for [ExpressionEngine](http://expressionengine.com
 
 In the context of our agency, EEException allows us to monitor issues that arise from all our web sites from a single dashboard, Codebase.
 
+### Note: EEException requires PHP 5.3
+If you don't have PHP 5.3, get with the times dude. It was released in 2009.
+
 ## Usage
 
 ### Installation
