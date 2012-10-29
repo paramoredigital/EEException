@@ -21,6 +21,10 @@
  * @author Jesse Bunch
  * @link http://paramore.is/
  */
+
+require_once(realpath(__DIR__) . '/codebaseexceptions/src/UseCases/SendErrorString.php');
+require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/Codebase.php');
+
 class Eeexception_ext
 {
 

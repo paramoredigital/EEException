@@ -33,9 +33,6 @@ $plugin_info = array(
     'pi_usage' => Eeexception::usage()
 );
 
-require_once(realpath(__DIR__) . '/src/UseCases/SendErrorString.php');
-require_once(realpath(__DIR__) . '/src/Notifier/Codebase.php');
-
 class Eeexception
 {
     public $return_data;
