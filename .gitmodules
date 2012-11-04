@@ -1,0 +1,3 @@
+[submodule "exceptions-php"]
+	path = exceptions-php
+	url = git@github.com:bunchjesse/exceptions-php.git
