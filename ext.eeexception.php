@@ -22,10 +22,10 @@
  * @link http://paramore.is/
  */
 
-require_once(realpath(__DIR__) . '/codebaseexceptions/src/UseCases/SendErrorString.php');
-require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/NotifierInterface.php');
-require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/NotifierFactory.php');
-require_once(realpath(__DIR__) . '/codebaseexceptions/src/Exceptions/NotifierNotFoundException.php');
+require_once(realpath(__DIR__) . '/exceptions-php/src/UseCases/SendErrorString.php');
+require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierInterface.php');
+require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierFactory.php');
+require_once(realpath(__DIR__) . '/exceptions-php/src/Exceptions/NotifierNotFoundException.php');
 
 class Eeexception_ext
 {
