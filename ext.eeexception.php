@@ -68,13 +68,16 @@ class Eeexception_ext
 
     /**
      * @param $error_message
-     * @return void;
+     * @param array $notifier_config_overrides
      */
-    public function eeexception_send_string($error_message)
+    public function eeexception_send_string($error_message, $notifier_config_overrides = array())
     {
         $eeexception_config = $this->EE->config->item('eeexception_config', null);
         $default_notifier = $eeexception_config['default_notifier'];
         $notifier_config = $eeexception_config['notifier_config'][$default_notifier];
+
+        unset($notifier_config_overrides['apiKey'], $notifier_config_overrides['apiEndpoint']);
+        $notifier_config = array_merge($notifier_config, $notifier_config_overrides);
 
         if (!isset($eeexception_config)) {
             $this->_logConfigInvalidError();

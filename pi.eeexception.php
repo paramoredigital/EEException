@@ -45,9 +45,18 @@ class Eeexception
     public function notify()
     {
         $error_message = $this->EE->TMPL->fetch_param('error_message', '');
+        $component = $this->EE->TMPL->fetch_param('component', 'EEException Plugin');
+        $action = $this->EE->TMPL->fetch_param('action', '');
 
         if (TRUE === $this->EE->extensions->active_hook('eeexception_send_string'))
-            $this->EE->extensions->call('eeexception_send_string', $error_message);
+            $this->EE->extensions->call(
+                'eeexception_send_string',
+                $error_message,
+                array(
+                    'component' => $component,
+                    'action' => $action
+                )
+            );
         else
             $this->_logExtensionNotInstalledError();
 
