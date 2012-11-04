@@ -23,13 +23,15 @@
  */
 
 require_once(realpath(__DIR__) . '/codebaseexceptions/src/UseCases/SendErrorString.php');
-require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/Codebase.php');
+require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/NotifierInterface.php');
+require_once(realpath(__DIR__) . '/codebaseexceptions/src/Notifier/NotifierFactory.php');
+require_once(realpath(__DIR__) . '/codebaseexceptions/src/Exceptions/NotifierNotFoundException.php');
 
 class Eeexception_ext
 {
 
     public $settings = array();
-    public $description = 'This extension provides a hook that can be used from other addons to send Exceptions to Codebase.';
+    public $description = 'This extension provides a hook that allows exceptions to be reported to Codebase, Airbrake, or any other destination.';
     public $docs_url = '';
     public $name = 'EEException';
     public $settings_exist = 'n';
@@ -70,19 +72,22 @@ class Eeexception_ext
      */
     public function eeexception_send_string($error_message)
     {
-        $api_key = $this->EE->config->item('codebase_exceptions_api_key', null);
+        $eeexception_config = $this->EE->config->item('eeexception_config', null);
+        $default_notifier = $eeexception_config['default_notifier'];
+        $notifier_config = $eeexception_config['notifier_config'][$default_notifier];
 
-        if (strlen($error_message) < 1) {
-            $this->_logInvalidMessageStringError();
+        if (!isset($eeexception_config)) {
+            $this->_logConfigInvalidError();
             return;
         }
 
-        if (!$api_key) {
-            $this->_logAPIKeyMissingError();
+        try {
+            $notifier = \EEException\Notifier\NotifierFactory::getNotifier($default_notifier, $notifier_config);
+        } catch (\EEException\Notifier\NotifierNotFoundException $e) {
+            $this->_logInvalidNotifierError();
             return;
         }
 
-        $notifier = new \EEException\Notifier\Codebase($api_key);
         $interactor = new \EEException\UseCases\SendErrorString($notifier);
 
         try {
@@ -98,10 +103,22 @@ class Eeexception_ext
         $this->EE->logger->developer('You forgot to set the "codebase_exceptions_api_key" item in your config file! This is needed for EEException to work.', TRUE, 86400);
     }
 
+    private function _logInvalidNotifierError()
+    {
+        $this->EE->load->library('logger');
+        $this->EE->logger->developer('The notifier you specified in EEException\'s configuration is not valid.', TRUE, 86400);
+    }
+
     protected function _logInvalidMessageStringError()
     {
         $this->EE->load->library('logger');
         $this->EE->logger->developer('EEException called with an invalid message string.', TRUE, 86400);
+    }
+
+    protected function _logConfigInvalidError()
+    {
+        $this->EE->load->library('logger');
+        $this->EE->logger->developer('EEException has not been configured properly. Please see the documentation.', TRUE, 86400);
     }
 
     /**
