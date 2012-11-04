@@ -27,6 +27,10 @@ require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierInterface
 require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierFactory.php');
 require_once(realpath(__DIR__) . '/exceptions-php/src/Exceptions/NotifierNotFoundException.php');
 
+use \EEException\Notifier\NotifierFactory as NotifierFactory;
+use \EEException\Notifier\NotifierNotFoundException as NotifierNotFoundException;
+use EEException\UseCases\SendErrorString as SendErrorStringUseCase;
+
 class Eeexception_ext
 {
 
@@ -72,32 +76,79 @@ class Eeexception_ext
      */
     public function eeexception_send_string($error_message, $notifier_config_overrides = array())
     {
-        $eeexception_config = $this->EE->config->item('eeexception_config', null);
-        $default_notifier = $eeexception_config['default_notifier'];
-        $notifier_config = $eeexception_config['notifier_config'][$default_notifier];
+        $eeexception_config = $this->_get_eeexception_config();
+        $selected_notifier = $this->_get_default_notifier($eeexception_config);
+        $notifier_config = $this->_get_notifier_config($selected_notifier, $eeexception_config);
+        $notifier_config = $this->_override_default_notifier_config($notifier_config, $notifier_config_overrides);
 
-        unset($notifier_config_overrides['apiKey'], $notifier_config_overrides['apiEndpoint']);
-        $notifier_config = array_merge($notifier_config, $notifier_config_overrides);
-
-        if (!isset($eeexception_config)) {
+        if ($this->_eeexception_config_isnt_set($eeexception_config)) {
             $this->_logConfigInvalidError();
             return;
         }
 
         try {
-            $notifier = \EEException\Notifier\NotifierFactory::getNotifier($default_notifier, $notifier_config);
-        } catch (\EEException\Notifier\NotifierNotFoundException $e) {
+            $notifier = NotifierFactory::getNotifier($selected_notifier, $notifier_config);
+        } catch (NotifierNotFoundException $e) {
             $this->_logInvalidNotifierError();
             return;
         }
 
-        $interactor = new \EEException\UseCases\SendErrorString($notifier);
+        $usecase = new SendErrorStringUseCase($notifier);
 
         try {
-            $interactor->execute($error_message);
+            $usecase->execute($error_message);
         } catch (InvalidArgumentException $e) {
             $this->_logInvalidMessageStringError();
         }
+    }
+
+    /**
+     * @param array $eeexception_config
+     * @return bool
+     */
+    protected function _eeexception_config_isnt_set(array $eeexception_config)
+    {
+        return !isset($eeexception_config);
+    }
+
+    /**
+     * @param array $notifier_config
+     * @param array $notifier_config_overrides
+     * @return array
+     */
+    public function _override_default_notifier_config(array $notifier_config, array $notifier_config_overrides)
+    {
+        unset($notifier_config_overrides['apiKey'], $notifier_config_overrides['apiEndpoint']);
+        $notifier_config = array_merge($notifier_config, $notifier_config_overrides);
+
+        return $notifier_config;
+    }
+
+    /**
+     * @param string $default_notifier
+     * @param array $eeexception_config
+     * @return array
+     */
+    protected function _get_notifier_config($default_notifier, array $eeexception_config)
+    {
+        return $eeexception_config['notifier_config'][$default_notifier];
+    }
+
+    /**
+     * @param array $eeexception_config
+     * @return array
+     */
+    protected function _get_default_notifier(array $eeexception_config)
+    {
+        return $eeexception_config['default_notifier'];
+    }
+
+    /**
+     * @return array
+     */
+    protected function _get_eeexception_config()
+    {
+        return $this->EE->config->item('eeexception_config', null);
     }
 
     protected function _logAPIKeyMissingError()
@@ -124,19 +175,12 @@ class Eeexception_ext
         $this->EE->logger->developer('EEException has not been configured properly. Please see the documentation.', TRUE, 86400);
     }
 
-    /**
-     * @return void
-     */
     function disable_extension()
     {
         $this->EE->db->where('class', __CLASS__);
         $this->EE->db->delete('extensions');
     }
 
-    /**
-     * @param string $current
-     * @return bool
-     */
     function update_extension($current = '')
     {
         if ($current == '' OR $current == $this->version)
