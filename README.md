@@ -25,7 +25,7 @@ EEException can report exceptions to just about any service. In order for EEExce
 		'notifier_config' => array(
 			'airbrake' => array(
 				'apiEndPoint' => 'https://exceptions.codebasehq.com/notifier_api/v2/notices',
-				'apiKey' => '1241ad63-8cb6-eaa8-7fc0-f3f6802d2c53'
+				'apiKey' => 'xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx'
 			)
 		)
 	);
