@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+        colors="true"
+        stopOnError="true"
+        stopOnFailure="true"
+        bootstrap="./bootstrap.php">
+    <php>
+        <!--<server name="doc_root" value="../../"/>-->
+        <!--<server name="app_path" value="fuel/app"/>-->
+        <!--<server name="core_path" value="fuel/core"/>-->
+        <!--<server name="package_path" value="fuel/packages"/>-->
+    </php>
+    <testsuites>
+        <testsuite name="all">
+            <directory suffix=".php">./</directory>
+        </testsuite>
+    </testsuites>
+    <logging>
+        <!--<log type="coverage-clover" target="./coverage.xml"/>-->
+        <!--<log type="testdox-text" target="./testdox.txt"/>-->
+    </logging>
+</phpunit>
