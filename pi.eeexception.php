@@ -44,11 +44,12 @@ class Eeexception
 
     public function notify()
     {
+        $redirect = $this->EE->TMPL->fetch_param('redirect','');
         $error_message = $this->EE->TMPL->fetch_param('error_message', '');
         $component = $this->EE->TMPL->fetch_param('component', 'EEException Plugin');
         $action = $this->EE->TMPL->fetch_param('action', '');
 
-        if (TRUE === $this->EE->extensions->active_hook('eeexception_send_string'))
+        if (TRUE === $this->EE->extensions->active_hook('eeexception_send_string')){
             $this->EE->extensions->call(
                 'eeexception_send_string',
                 $error_message,
@@ -57,10 +58,12 @@ class Eeexception
                     'action' => $action
                 )
             );
-        else
+        }else{
             $this->_logExtensionNotInstalledError();
-
-
+        }
+        if($redirect != ''){
+            $this->EE->functions->redirect($this->EE->functions->create_url($redirect)); 
+        }
         return '';
     }
 
