@@ -20,7 +20,7 @@ class SystemEmail implements NotifierInterface
         $this->_email_config = array_merge($this->_email_config, $notifier_config);
     }
 
-    public function SendErrorString($message)
+    public function SendErrorString($code, $message)
     {
         $config = $this->_get_config();
 

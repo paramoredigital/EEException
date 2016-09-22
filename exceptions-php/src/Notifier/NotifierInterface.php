@@ -13,5 +13,5 @@ interface NotifierInterface
      * @param string $message
      * @return bool
      */
-    public function SendErrorString($message);
+    public function SendErrorString($code, $message);
 }

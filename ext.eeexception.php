@@ -23,6 +23,7 @@
  */
 
 require_once(realpath(__DIR__) . '/exceptions-php/src/UseCases/SendErrorString.php');
+require_once(realpath(__DIR__) . '/exceptions-php/src/UseCases/RegisterHandler.php');
 require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierInterface.php');
 require_once(realpath(__DIR__) . '/exceptions-php/src/Notifier/NotifierFactory.php');
 require_once(realpath(__DIR__) . '/exceptions-php/src/Exceptions/NotifierNotFoundException.php');
@@ -30,6 +31,7 @@ require_once(realpath(__DIR__) . '/exceptions-php/src/Exceptions/NotifierNotFoun
 use \EEException\Notifier\NotifierFactory as NotifierFactory;
 use \EEException\Notifier\NotifierNotFoundException as NotifierNotFoundException;
 use EEException\UseCases\SendErrorString as SendErrorStringUseCase;
+use EEException\UseCases\RegisterHandler as RegisterHandler;
 
 class Eeexception_ext
 {
@@ -39,7 +41,7 @@ class Eeexception_ext
     public $docs_url = '';
     public $name = 'EEException';
     public $settings_exist = 'n';
-    public $version = '1.0';
+    public $version = '1.1';
 
     private $EE;
 
@@ -70,11 +72,29 @@ class Eeexception_ext
         $this->EE->db->insert('extensions', $data);
     }
 
+    public function eeexception_register_handler()
+    {
+        $eeexception_config = $this->_get_eeexception_config();
+        $selected_notifier = $this->_get_default_notifier($eeexception_config);
+        $notifier_config = $this->_get_notifier_config($selected_notifier, $eeexception_config);
+
+        if ($this->_eeexception_config_isnt_set($eeexception_config))
+        {
+            $this->_logConfigInvalidError();
+            return;
+        }
+
+
+        $usecase = new RegisterHandler($notifier_config);
+        $usecase->execute();
+    }
+
     /**
+     * @param $error_code
      * @param $error_message
      * @param array $notifier_config_overrides
      */
-    public function eeexception_send_string($error_message, $notifier_config_overrides = array())
+    public function eeexception_send_string($error_code, $error_message, $notifier_config_overrides = array())
     {
         $eeexception_config = $this->_get_eeexception_config();
         $selected_notifier = $this->_get_default_notifier($eeexception_config);
@@ -96,9 +116,9 @@ class Eeexception_ext
         $usecase = new SendErrorStringUseCase($notifier);
 
         try {
-            $usecase->execute($error_message);
+            $usecase->execute($error_code, $error_message);
         } catch (InvalidArgumentException $e) {
-            $this->_logInvalidMessageStringError();
+            $this->_logInvalidMessageStringError($e);
         }
     }
 
@@ -118,7 +138,7 @@ class Eeexception_ext
      */
     public function _override_default_notifier_config(array $notifier_config, array $notifier_config_overrides)
     {
-        unset($notifier_config_overrides['apiKey'], $notifier_config_overrides['apiEndpoint']);
+        unset($notifier_config_overrides['apiKey'], $notifier_config_overrides['host']);
         $notifier_config = array_merge($notifier_config, $notifier_config_overrides);
 
         return $notifier_config;
@@ -163,10 +183,10 @@ class Eeexception_ext
         $this->EE->logger->developer('The notifier you specified in EEException\'s configuration is not valid.', TRUE, 86400);
     }
 
-    protected function _logInvalidMessageStringError()
+    protected function _logInvalidMessageStringError($e)
     {
         $this->EE->load->library('logger');
-        $this->EE->logger->developer('EEException called with an invalid message string.', TRUE, 86400);
+        $this->EE->logger->developer('EEException '. $e->getMessage(), TRUE, 86400);
     }
 
     protected function _logConfigInvalidError()
@@ -184,7 +204,22 @@ class Eeexception_ext
     function update_extension($current = '')
     {
         if ($current == '' OR $current == $this->version)
-            return FALSE;
+        {
+            return false;
+        }
+
+        if ($current < '1.2')
+        {
+            $data = array(
+                'class' => __CLASS__,
+                'method' => 'eeexception_register_handler',
+                'hook' => 'eeexception_register_handler',
+                'version' => $this->version,
+                'enabled' => 'y'
+            );
+
+            $this->EE->db->insert('extensions', $data);
+        }
 
         return TRUE;
     }

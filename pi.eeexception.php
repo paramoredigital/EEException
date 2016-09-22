@@ -42,6 +42,15 @@ class Eeexception
         $this->EE =& get_instance();
     }
 
+    public function register_handler()
+    {
+        if ($this->EE->extensions->active_hook('eeexception_register_handler') === true)
+        {
+            $this->EE->extensions->call('eeexception_register_handler');
+        }
+        return '';
+    }
+
     public function notify()
     {
         $error_message = $this->EE->TMPL->fetch_param('error_message', '');

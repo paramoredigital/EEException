@@ -24,8 +24,11 @@ EEException can report exceptions to just about any service. In order for EEExce
 		'default_notifier' => 'airbrake',
 		'notifier_config' => array(
 			'airbrake' => array(
-				'apiEndPoint' => 'https://exceptions.codebasehq.com/notifier_api/v2/notices',
-				'apiKey' => 'xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx'
+				'host' => 'https://exceptions.codebasehq.com',
+				'apiKey' => 'xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx',
+				'projectKey' => 'xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxxx',
+                'projectId' => 'xxxxx',
+                'rootDirectory' => $_SERVER['DOCUMENT_ROOT']
 			)
 		)
 	);
@@ -40,10 +43,23 @@ EEException exposes a special extension hook that add-on developers can use to r
 To send an exception to Codebase, call the `eeexception_send_string` hook.
 
 	if (TRUE === $this->EE->extensions->active_hook('eeexception_send_string'))
-		$this->EE->extensions->call('eeexception_send_string', $error_message, $notifier_config_overrides);
+		$this->EE->extensions->call('eeexception_send_string', $error_code, $error_message, $notifier_config_overrides);
 
 See the Extension API documentation below for more information.
 
+
+$error_code can have the following values:
+
+ - E_NOTICE 
+ - E_USER_NOTICE 
+ - E_WARNING 
+ - E_USER_WARNING 
+ - E_ERROR 
+ - E_CORE_ERROR 
+ - E_RECOVERABLE_ERROR 
+ - E_USER_ERROR 
+ 
+ 
 __Note:__ It's okay to distribute this call to the EEException hook with your add-on. If a user does not have EEException installed, your code will continue without any hitch.
 
 ### In your templates
@@ -66,16 +82,30 @@ In your `{if no_results}` conditional, you might just redirect to the 404 page. 
 
 	{if no_results}
 		{exp:eeexception:notify 
-			error_message="Unable to find Entry 10. The page is broken."
+			error_code="E_ERROR" error_message="Unable to find Entry 10. The page is broken."
 		}
 	{/if}
 
 ## Extension Hooks
 
+### eeexception_register_handler
+Register an Airbrake Exception Handler
+
 ### eeexception_send_string
 Sends the provided string to Codebase.
 
 __Parameters__
+
+- `$error_code` (int, required) The error level must have one of these values:
+
+    - E_NOTICE 
+    - E_USER_NOTICE 
+    - E_WARNING 
+    - E_USER_WARNING 
+    - E_ERROR 
+    - E_CORE_ERROR 
+    - E_RECOVERABLE_ERROR 
+    - E_USER_ERROR 
 
 - `$error_message` (string, required) The exception message to log.
 
@@ -85,10 +115,23 @@ __Returns:__ nothing
 
 ## Plugin API
 
+### {exp:eeexception:register_handler}
+Register an Exception Handler
+
 ### {exp:eeexception:notify}
 Sends an exception string to Codebase.
 
 __Parameters__
+`error_code` (string, required) the error code. Must be one of these values:
+                                               
+    - E_NOTICE 
+    - E_USER_NOTICE 
+    - E_WARNING 
+    - E_USER_WARNING 
+    - E_ERROR 
+    - E_CORE_ERROR 
+    - E_RECOVERABLE_ERROR 
+    - E_USER_ERROR 
 
 `error_message` (string, required) the error message you want to log as an exception.
 
@@ -101,23 +144,23 @@ Each EEException notifier can have several configuration parameters. You'll find
 
 Supports sending exceptions to [Codebase](http://codebasehq.com/) and [Airbrake](http://airbrake.io).
 
-`apiEndPoint`
+`host`
 (string, required) The API URL of the airbrake-enabled service.
 
-- Codebase: https://exceptions.codebasehq.com/notifier_api/v2/notices
-- Airbrake.io: http://api.airbrake.io/notifier_api/v2/notices
+- Codebase: https://exceptions.codebasehq.com
+- Airbrake.io: http://api.airbrake.io
 
 `apiKey`
 (string, required) Your API key. For codebase, this is found under the __Exceptions__ tab in your project.
 
-`environmentName`
+`projectKey`
+(string, required) Your Project key. For codebase, this is found under the __Exceptions__ tab in your project.
+
+`projectId`
+(int, required) Your Project ID. For codebase, this is found under the __Exceptions__ tab in your project.
+
+`environment`
 (string, optional) Defaults to "production"
-
-`component`
-(string, optional) Allows you to specify what component the exception occurred in. You might use your plugin/module name here.
-
-`action`
-(string, optional) Allows you to specify what action was happening when the exception occurred.
 
 `url`
 (string, optional) EEException will use the current URL by default, but you may override this if you wish.
@@ -125,9 +168,9 @@ Supports sending exceptions to [Codebase](http://codebasehq.com/) and [Airbrake]
 ## Coming Soon
 These features are planned for the near future and will be implemented as time permits.
 
-- Automatic logging of all PHP errors.
 - Ability to log exception objects directly.
 - Ability to edit API key from control panel.
+- Ability to filter Exception to report when Handler is registered
 
 ## Contributing
 Feel free to submit pull requests for new functionality. We'll review them for quality and merge them in if everything checks out.
