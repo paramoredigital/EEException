@@ -42,12 +42,23 @@ class Airbrake implements NotifierInterface
      */
     public function SendErrorString($message)
     {
+        die(__METHOD__);
         $apiKey  = $this->_apiKey;
         $options = $this->_getConfigOptions();
 
-        $client = new \Airbrake\Notifier($options);
+        // Create new Notifier instance.
+        $notifier = new \Airbrake\Notifier($options);
+        // Set global notifier instance.
+        \Airbrake\Instance::set($notifier);
 
-        return $client->notify($message);
+
+        // return $client->notify($message);
+        // Somewhere in the app...
+        try {
+            throw new Exception($message);
+        } catch(Exception $e) {
+            \Airbrake\Instance::notify($e);
+        }
     }
 
     /**
