@@ -3,8 +3,7 @@
 namespace EEException\Notifier;
 
 require_once(realpath(__DIR__).'/NotifierInterface.php');
-require_once(realpath(__DIR__).'/../vendor/php-airbrake/src/Airbrake/Client.php');
-require_once(realpath(__DIR__).'/../vendor/php-airbrake/src/Airbrake/Configuration.php');
+require_once(realpath(__DIR__).'/../vendor/autoload.php');
 
 class Airbrake implements NotifierInterface
 {
@@ -46,10 +45,9 @@ class Airbrake implements NotifierInterface
         $apiKey  = $this->_apiKey;
         $options = $this->_getConfigOptions();
 
-        $config = new \Airbrake\Configuration($apiKey, $options);
-        $client = new \Airbrake\Client($config);
+        $client = new \Airbrake\Notifier($options);
 
-        return $client->notifyOnError($message);
+        return $client->notify($message);
     }
 
     /**
