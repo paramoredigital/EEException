@@ -70,6 +70,16 @@ class Eeexception_ext
         );
 
         $this->EE->db->insert('extensions', $data);
+
+        $data = array(
+            'class' => __CLASS__,
+            'method' => 'eeexception_register_handler',
+            'hook' => 'eeexception_register_handler',
+            'version' => $this->version,
+            'enabled' => 'y'
+        );
+
+        $this->EE->db->insert('extensions', $data);
     }
 
     public function eeexception_register_handler()
