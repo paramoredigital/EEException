@@ -1,0 +1,56 @@
+[
+    {
+        "name": "airbrake/phpbrake",
+        "version": "v0.2.0",
+        "version_normalized": "0.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/airbrake/phpbrake.git",
+            "reference": "a96197b7dbe5ec6d7ffba9fdd2f1f3206d6682a9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/airbrake/phpbrake/zipball/a96197b7dbe5ec6d7ffba9fdd2f1f3206d6682a9",
+            "reference": "a96197b7dbe5ec6d7ffba9fdd2f1f3206d6682a9",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4"
+        },
+        "require-dev": {
+            "guzzlehttp/guzzle": "^6.2",
+            "monolog/monolog": "^1.16.0",
+            "phpunit/phpunit": "^4.8.0",
+            "squizlabs/php_codesniffer": "^2.5.1"
+        },
+        "suggest": {
+            "guzzlehttp/guzzle": "Allows for implementation of the Guzzle HTTP client"
+        },
+        "time": "2016-07-21 11:56:30",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Airbrake\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "Airbrake exception and error notifier for PHP",
+        "homepage": "https://airbrake.io",
+        "keywords": [
+            "airbrake",
+            "error",
+            "exception",
+            "logging",
+            "notifier"
+        ]
+    }
+]
